@@ -1,77 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Google Drive Photo Upload</title>
-  <style>
-    body {
-      background: #e0e0e0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-    button {
-      background: orange;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover { background: darkorange; }
-  </style>
+<meta charset="UTF-8">
+<title>Upload Photo to Google Drive</title>
+<style>
+  body { background:#e0e0e0; font-family:Arial; display:flex; justify-content:center; align-items:center; height:100vh; }
+  .box { background:white; padding:30px; border-radius:12px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+  button { background:orange; border:none; padding:10px 20px; border-radius:8px; color:white; cursor:pointer; }
+  button:hover { background:darkorange; }
+</style>
 </head>
 <body>
-  <div class="box">
-    <h2>Upload Photo to Google Drive</h2>
-    <form id="uploadForm">
-      <input type="file" name="file" id="fileInput" accept="image/*" /><br><br>
-      <button type="submit">Upload</button>
-    </form>
-    <p id="status"></p>
-  </div>
+<div class="box">
+  <h2>Upload Photo</h2>
+  <input type="file" id="fileInput" accept="image/*"><br><br>
+  <button onclick="upload()">Upload</button>
+  <p id="status"></p>
+</div>
 
-  <script>
-    const form = document.getElementById('uploadForm');
-    const status = document.getElementById('status');
+<script>
+async function upload() {
+  const fileInput = document.getElementById('fileInput');
+  const status = document.getElementById('status');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  if (!fileInput.files.length) {
+    status.textContent = 'Select a file first';
+    return;
+  }
 
-      const fileInput = document.getElementById('fileInput');
-      if (fileInput.files.length === 0) {
-        status.textContent = 'Please select a file.';
-        return;
-      }
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
 
-      const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
+  status.textContent = 'Uploading...';
 
-      status.textContent = 'Uploading...';
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbzXAx4ERdJCLuM5T8WStuO_Pwh72ldNj1CxgHFcZCP5UYjpD6VXZeV-nKT9byvnSxMS/exec'; // Replace with your Apps Script URL
 
-      const scriptURL = 'https://script.google.com/macros/s/AKfycbycDagJHaFmaIto-W2j7lxQB3ZO0mCZVqSxMRWmx273W9KFnhSuWEYwE41tgB1KjkNW/exec'; // Paste your web app URL here
-
-      try {
-        const response = await fetch(scriptURL, {
-          method: 'POST',
-          body: formData,
-        });
-
-        const text = await response.text();
-        status.textContent = text;
-      } catch (err) {
-        status.textContent = 'Error: ' + err.message;
-      }
-    });
-  </script>
+  try {
+    const response = await fetch(scriptURL, { method: 'POST', body: formData });
+    const text = await response.text();
+    status.innerHTML = text;
+  } catch(err) {
+    status.textContent = 'Error: ' + err.message;
+  }
+}
+</script>
 </body>
 </html>
